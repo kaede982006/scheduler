@@ -27,16 +27,21 @@ void hr_line(int width);
 int  days_in_month(int year, int month);
 
 /*
- * Zeller's congruence
- * 반환값: 0=일, 1=월, 2=화, 3=수, 4=목, 5=금, 6=토
+ * Zeller's congruence: 0=일, 1=월, ..., 6=토
  */
 int  day_of_week(int year, int month, int day);
 
 /* 오늘 날짜 취득 */
 void today(int *year, int *month, int *day);
 
-/* 날짜 유효성 검사 (1 = 유효, 0 = 무효) */
+/* 날짜 유효성 검사 */
 int  date_valid(int year, int month, int day);
 int  yearmonth_valid(int year, int month);
+
+/*
+ * date_to_days: 율리우스 적일 기반 날짜 → 정수(일수) 변환
+ * 두 날짜 간 차이(일수) 계산에 사용
+ */
+long date_to_days(int year, int month, int day);
 
 #endif /* UTIL_H */

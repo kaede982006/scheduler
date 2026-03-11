@@ -2,14 +2,16 @@ CC      = gcc
 CFLAGS  = -Wall -Wextra -Wpedantic -O2 -std=c11 -Iinclude
 TARGET  = scheduler
 
-SRCS    = src/main.c   \
-          src/util.c   \
-          src/task.c   \
-          src/fmt1.c   \
-          src/fmt2.c   \
-          src/edit.c
+OBJS    = src/main.o  \
+          src/util.o  \
+          src/task.o  \
+          src/fmt1.o  \
+          src/fmt2.o
 
-OBJS    = $(SRCS:.c=.o)
+HDRS    = include/util.h  \
+          include/task.h  \
+          include/fmt1.h  \
+          include/fmt2.h
 
 .PHONY: all clean install
 
@@ -19,7 +21,19 @@ $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $^
 	@echo "빌드 완료: ./$(TARGET)"
 
-src/%.o: src/%.c
+src/main.o: src/main.c $(HDRS)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+src/util.o: src/util.c include/util.h
+	$(CC) $(CFLAGS) -c $< -o $@
+
+src/task.o: src/task.c include/task.h include/util.h
+	$(CC) $(CFLAGS) -c $< -o $@
+
+src/fmt1.o: src/fmt1.c include/fmt1.h include/task.h include/util.h
+	$(CC) $(CFLAGS) -c $< -o $@
+
+src/fmt2.o: src/fmt2.c include/fmt2.h include/task.h include/util.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
 install: $(TARGET)

@@ -3,12 +3,18 @@
 #include "task.h"
 #include "fmt2.h"
 
-/* ── 2형식: 텍스트 라인 ──────────────────────────────────────────────── */
+static void repeat_marker(Task *t, char *buf, int cap)
+{
+    if (t->repeat_days > 0)
+        snprintf(buf, cap, C_DIM " [↻%d일]" C_RESET, t->repeat_days);
+    else
+        buf[0] = '\0';
+}
+
 void fmt2_text_lines(int y, int m, int d)
 {
     int         dow = day_of_week(y, m, d);
-    const char *dc  = (dow == 0 ? C_RED  :
-                      (dow == 6 ? C_BLUE : C_WHITE));
+    const char *dc  = (dow==0 ? C_RED : (dow==6 ? C_BLUE : C_WHITE));
 
     printf(C_BOLD C_CYAN
            "\n◆ [2형식 / 텍스트 라인]  %04d년 %s %d일 %s(%s)" C_RESET "\n",
@@ -28,19 +34,19 @@ void fmt2_text_lines(int y, int m, int d)
                 cur_h = t->hour;
                 printf(C_YELLOW "  %02d:00 대\n" C_RESET, cur_h);
             }
-            printf("    " C_GREEN "[%02d:%02d]" C_RESET "  %s\n",
-                   t->hour, t->minute, t->title);
+            char rm[48];
+            repeat_marker(t, rm, sizeof rm);
+            printf("    " C_GREEN "[%02d:%02d]" C_RESET "  %s%s\n",
+                   t->hour, t->minute, t->title, rm);
         }
     }
     printf("\n");
 }
 
-/* ── 2형식: 트리 ─────────────────────────────────────────────────────── */
 void fmt2_tree(int y, int m, int d)
 {
     int         dow = day_of_week(y, m, d);
-    const char *dc  = (dow == 0 ? C_RED  :
-                      (dow == 6 ? C_BLUE : C_WHITE));
+    const char *dc  = (dow==0 ? C_RED : (dow==6 ? C_BLUE : C_WHITE));
 
     printf(C_BOLD C_CYAN
            "◆ [2형식 / 트리]  %04d년 %s %d일 %s(%s)" C_RESET "\n",
@@ -56,16 +62,11 @@ void fmt2_tree(int y, int m, int d)
         return;
     }
 
-    /* 시간대 그룹 수집 (정렬 완료 가정) */
-    int seen[24] = {0};
-    int hours[24];
-    int nh = 0;
+    /* 시간대 그룹 수집 */
+    int seen[24] = {0}, hours[24], nh = 0;
     for (int i = 0; i < total; i++) {
-        int h = idx_all[i] >= 0 ? tasks[idx_all[i]].hour : -1;
-        if (h >= 0 && h < 24 && !seen[h]) {
-            seen[h]    = 1;
-            hours[nh++] = h;
-        }
+        int h = tasks[idx_all[i]].hour;
+        if (h >= 0 && h < 24 && !seen[h]) { seen[h]=1; hours[nh++]=h; }
     }
 
     for (int hi = 0; hi < nh; hi++) {
@@ -73,24 +74,24 @@ void fmt2_tree(int y, int m, int d)
         int hidx[32];
         int hcnt = task_query_hour(y, m, d, h, hidx, 32);
 
-        const char *hlast  = (hi == nh - 1) ? T_END : T_MID;
-        const char *hindent= (hi == nh - 1) ? T_SPC : T_CON;
+        const char *hlast  = (hi == nh-1) ? T_END : T_MID;
+        const char *hindent= (hi == nh-1) ? T_SPC : T_CON;
 
         printf("%s" C_YELLOW "%02d:00" C_RESET
-               C_DIM " [%d건]" C_RESET "\n",
-               hlast, h, hcnt);
+               C_DIM " [%d건]" C_RESET "\n", hlast, h, hcnt);
 
         for (int i = 0; i < hcnt; i++) {
             Task       *t   = &tasks[hidx[i]];
-            const char *pfx = (i == hcnt - 1) ? T_END : T_MID;
-            printf("%s%s" C_GREEN "[%02d:%02d]" C_RESET "  %s\n",
-                   hindent, pfx, t->hour, t->minute, t->title);
+            const char *pfx = (i == hcnt-1) ? T_END : T_MID;
+            char        rm[48];
+            repeat_marker(t, rm, sizeof rm);
+            printf("%s%s" C_GREEN "[%02d:%02d]" C_RESET "  %s%s\n",
+                   hindent, pfx, t->hour, t->minute, t->title, rm);
         }
     }
     printf("\n");
 }
 
-/* ── 래퍼 ─────────────────────────────────────────────────────────────── */
 void fmt2_render(int y, int m, int d)
 {
     fmt2_text_lines(y, m, d);
