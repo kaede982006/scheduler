@@ -234,8 +234,7 @@ int task_query_day(int y, int m, int d, int out[], int cap)
 int task_find_by_title(int y, int m, int d, const char *title)
 {
     for (int i = 0; i < n_tasks; i++)
-        if (tasks[i].year  == y && tasks[i].month == m &&
-            tasks[i].day   == d && strcmp(tasks[i].title, title) == 0)
+        if (task_occurs_on(i, y, m, d) && strcmp(tasks[i].title, title) == 0)
             return i;
     return -1;
 }
