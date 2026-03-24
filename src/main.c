@@ -245,15 +245,14 @@ static int handle_c(int argc, char *argv[], int i)
         fprintf(stderr, C_RED "오류: N 은 0 이상의 정수여야 합니다.\n" C_RESET); return 1;
     }
 
-    int idx = task_find_by_title(y, m, d, path);
-    if (idx < 0) {
+    int cnt = task_set_repeat_by_title(y, m, d, path, n);
+    if (cnt == 0) {
         fprintf(stderr,
             C_RED "오류: '%s' — %04d-%02d-%02d 에 해당 일정 없음\n" C_RESET,
             path, y, m, d);
         return 1;
     }
 
-    task_set_repeat(idx, n);
     task_save();
 
     if (n == 0)

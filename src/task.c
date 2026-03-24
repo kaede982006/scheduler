@@ -295,6 +295,32 @@ int task_del_by_title(int y, int m, int d, const char *title)
 /* ═══════════════════════════════════════════════════════════════════════
  * 반복 설정 / 설명
  * ═══════════════════════════════════════════════════════════════════════ */
+
+/*
+ * task_set_repeat_by_title: (날짜, 경로) 기준 반복 설정 (cascade)
+ *   title 과 정확히 일치하는 항목, 그리고 title + "/" 로 시작하는
+ *   모든 하위 경로에 repeat_days 를 설정한다.
+ *   반환값 = 설정된 태스크 수
+ */
+int task_set_repeat_by_title(int y, int m, int d, const char *title, int n)
+{
+    char prefix[TITLE_LEN + 2];
+    snprintf(prefix, sizeof prefix, "%s/", title);
+    int plen = (int)strlen(prefix);
+    int count = 0;
+
+    for (int i = 0; i < n_tasks; i++) {
+        if (tasks[i].year != y || tasks[i].month != m || tasks[i].day != d)
+            continue;
+        if (strcmp(tasks[i].title, title) == 0 ||
+            strncmp(tasks[i].title, prefix, (size_t)plen) == 0) {
+            tasks[i].repeat_days = n;
+            count++;
+        }
+    }
+    return count;
+}
+
 int task_set_repeat(int idx, int n)
 {
     if (idx < 0 || idx >= n_tasks) return 0;

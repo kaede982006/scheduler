@@ -79,6 +79,7 @@ int task_del(int idx);
 
 /* ── 반복 설정 ────────────────────────────────────────────────────────── */
 int task_set_repeat(int idx, int n);
+int task_set_repeat_by_title(int y, int m, int d, const char *title, int n);
 
 /* ── 설명 ─────────────────────────────────────────────────────────────── */
 int task_set_desc  (int idx, const char *desc);
